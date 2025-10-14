@@ -1,0 +1,1904 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "CCS API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/advocates": {
+            "get": {
+                "tags": [
+                    "Advocates"
+                ],
+                "summary": "List advocates (paginated)",
+                "operationId": "752e3a3cecd865492be2e0b00c9dc9b2",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Filter by enrolment year",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in name, enrolment_no or residence",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page (default 20, max 100)",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated advocates",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "year": {
+                                                        "type": "integer"
+                                                    },
+                                                    "serial_no": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "enrolment_no": {
+                                                        "type": "string"
+                                                    },
+                                                    "enrolment_year": {
+                                                        "type": "string"
+                                                    },
+                                                    "parentage": {
+                                                        "type": "string"
+                                                    },
+                                                    "residence": {
+                                                        "type": "string"
+                                                    },
+                                                    "phone": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "mobile": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "total_pages": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cat/casedetails": {
+            "get": {
+                "tags": [
+                    "CAT"
+                ],
+                "summary": "Get CAT case details by case number",
+                "operationId": "aadeb09aceaeb5c363fae0832cb9bb74",
+                "parameters": [
+                    {
+                        "name": "caseNo",
+                        "in": "query",
+                        "description": "Case number",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "caseType",
+                        "in": "query",
+                        "description": "Case type (e.g., OA)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "caseYear",
+                        "in": "query",
+                        "description": "Case year (e.g., 2024)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Location code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "error": {
+                                                    "type": "string",
+                                                    "example": "Invalid API response or no data found"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/consumers": {
+            "get": {
+                "tags": [
+                    "Consumers"
+                ],
+                "summary": "List consumer details",
+                "operationId": "39606af6450e02dac37b094b7e141744",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in name/designation/email/mobile_no",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Consumers list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "mobile_no": {
+                                                "type": "string"
+                                            },
+                                            "email": {
+                                                "type": "string"
+                                            },
+                                            "district": {
+                                                "type": "string"
+                                            },
+                                            "designation": {
+                                                "type": "string"
+                                            },
+                                            "lat": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "nullable": true
+                                            },
+                                            "lng": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/consumers/districts": {
+            "get": {
+                "tags": [
+                    "Consumers"
+                ],
+                "summary": "Get consumer districts",
+                "operationId": "20e81dc46793cebf7f3afaefd6fcae18",
+                "responses": {
+                    "200": {
+                        "description": "Distinct districts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contacts": {
+            "post": {
+                "summary": "Create a contact entry",
+                "operationId": "a3b0baf957a16c1ed505f2e8985c254c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "mobile_no",
+                                    "present_state",
+                                    "present_district",
+                                    "description",
+                                    "category"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "mobile_no": {
+                                        "type": "string"
+                                    },
+                                    "present_state": {
+                                        "type": "string"
+                                    },
+                                    "present_district": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "category": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    },
+                                    "comment": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/api/courts/coordinates": {
+            "get": {
+                "tags": [
+                    "Courts"
+                ],
+                "summary": "Get court coordinates",
+                "operationId": "63683f17b30fca1cb25fefbf21b3c049",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in court name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of courts with coordinates",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "court_name": {
+                                                "type": "string"
+                                            },
+                                            "address": {
+                                                "type": "string"
+                                            },
+                                            "lat": {
+                                                "type": "number",
+                                                "format": "float"
+                                            },
+                                            "lng": {
+                                                "type": "number",
+                                                "format": "float"
+                                            },
+                                            "district": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/courts/districts": {
+            "get": {
+                "tags": [
+                    "Courts"
+                ],
+                "summary": "Get list of districts with courts",
+                "operationId": "05913fee430db12c026c8a92d0f1ea9c",
+                "responses": {
+                    "200": {
+                        "description": "Distinct districts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dcpu": {
+            "get": {
+                "tags": [
+                    "DCPU"
+                ],
+                "summary": "List DCPU directory",
+                "operationId": "071bfa5c391c826cfd3fd2d26051cfee",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "organisation",
+                        "in": "query",
+                        "description": "Filter by organisation",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in officer name or designation",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "DCPU directory list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "district": {
+                                                "type": "string"
+                                            },
+                                            "organisation": {
+                                                "type": "string"
+                                            },
+                                            "officer_name": {
+                                                "type": "string"
+                                            },
+                                            "designation": {
+                                                "type": "string"
+                                            },
+                                            "mobile": {
+                                                "type": "string"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "lat": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "nullable": true
+                                            },
+                                            "lng": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "nullable": true
+                                            },
+                                            "address": {
+                                                "type": "string",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dcpu/districts": {
+            "get": {
+                "tags": [
+                    "DCPU"
+                ],
+                "summary": "Get DCPU districts",
+                "operationId": "37b72de9eb66a5471d9f1051cb9a3343",
+                "responses": {
+                    "200": {
+                        "description": "Distinct districts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/district-litigation-officers": {
+            "get": {
+                "summary": "List district litigation officers",
+                "operationId": "437069b15387773ef1d401705f13d4ff",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/district-litigation-officers/districts": {
+            "get": {
+                "summary": "List districts with litigation officers",
+                "operationId": "c861d1384a1fffa96b2772622e6ecc37",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/dlsa": {
+            "get": {
+                "summary": "List DLSA records",
+                "operationId": "02f732ed98ed91056f70159d5b1f427a",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/dlsa/districts": {
+            "get": {
+                "summary": "List districts with DLSA entries",
+                "operationId": "14a601b55c09c0d13da2d2bee9aaaa32",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/ecourt-branches": {
+            "get": {
+                "tags": [
+                    "eCourt Branches"
+                ],
+                "summary": "List eCourt branches (paginated)",
+                "operationId": "8f591a2f308dc01cf30cf894ed5bd558",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in account_name or branch_location",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page (default 20, max 100)",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated branches",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "account_name": {
+                                                        "type": "string"
+                                                    },
+                                                    "branch_location": {
+                                                        "type": "string"
+                                                    },
+                                                    "mobile_no": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "total_pages": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/estamp-vendors": {
+            "get": {
+                "tags": [
+                    "E-Stamp Vendors"
+                ],
+                "summary": "List e-stamp vendors (paginated)",
+                "operationId": "e77d8220c7fe454da6be1e87d8b3e2cf",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in account_name or branch_address",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page (default 20, max 100)",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated vendor list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "account_name": {
+                                                        "type": "string"
+                                                    },
+                                                    "acctid": {
+                                                        "type": "string"
+                                                    },
+                                                    "branchcd": {
+                                                        "type": "string"
+                                                    },
+                                                    "branch_address": {
+                                                        "type": "string"
+                                                    },
+                                                    "branch_phone": {
+                                                        "type": "string"
+                                                    },
+                                                    "account_phone": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "total_pages": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/estamp-vendors/districts": {
+            "get": {
+                "tags": [
+                    "E-Stamp Vendors"
+                ],
+                "summary": "Get e-stamp vendor districts (best-effort from branch_address)",
+                "operationId": "f6967630b9436be21a04aa9a3632b71f",
+                "responses": {
+                    "200": {
+                        "description": "List of district-like values",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/faq-igr": {
+            "get": {
+                "tags": [
+                    "FAQ IGR"
+                ],
+                "summary": "List FAQ IGR (paginated)",
+                "operationId": "c9cca075f06a7651cad3131f10f29082",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in title or content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "Filter by category",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page (default 20, max 100)",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated FAQs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "q_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "content": {
+                                                        "type": "string"
+                                                    },
+                                                    "category": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "total_pages": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/complaints": {
+            "post": {
+                "summary": "Create a grievance complaint",
+                "operationId": "c47a2b6c8408af924fc28c59ca4eff67",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "mobile_no",
+                                    "present_state",
+                                    "present_district",
+                                    "description",
+                                    "category"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "mobile_no": {
+                                        "type": "string"
+                                    },
+                                    "present_state": {
+                                        "type": "string"
+                                    },
+                                    "present_district": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "category": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    },
+                                    "comment": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/api/law-officers": {
+            "get": {
+                "tags": [
+                    "Law Officers"
+                ],
+                "summary": "List law officers (paginated)",
+                "operationId": "ae34b0fc5c869be6d9b518c3b8fb90db",
+                "parameters": [
+                    {
+                        "name": "wing",
+                        "in": "query",
+                        "description": "Filter by wing (e.g., Jammu/Srinagar)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in name, designation or office address",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page (default 20, max 100)",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated law officers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "designation": {
+                                                        "type": "string"
+                                                    },
+                                                    "contact_no": {
+                                                        "type": "string"
+                                                    },
+                                                    "email_address": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "office_address": {
+                                                        "type": "string"
+                                                    },
+                                                    "wing": {
+                                                        "type": "string"
+                                                    },
+                                                    "s_no": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "total_pages": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/legal-aid-clinics": {
+            "get": {
+                "summary": "List legal aid clinics",
+                "operationId": "589149d316ff6dd67eb4d88dfec5d2be",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/districts": {
+            "get": {
+                "summary": "List districts",
+                "operationId": "c81b1d833bae6644675cf95f809201f5",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/literacy-clubs": {
+            "get": {
+                "summary": "List legal literacy clubs",
+                "operationId": "976a332b88a61e0713aa10f2de9c05da",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/literacy-clubs/districts": {
+            "get": {
+                "summary": "List districts with literacy clubs",
+                "operationId": "04861a64059810cc8e2c24aa2e299c1d",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/states": {
+            "get": {
+                "summary": "List states",
+                "operationId": "bbef2bb416d098b1e0f80684f1dc8a74",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/districts-by-state": {
+            "get": {
+                "summary": "List districts (optionally filtered by state_id)",
+                "operationId": "0820d3170f2ffc3d15d77fc50ee75ee6",
+                "parameters": [
+                    {
+                        "name": "state_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/mlas": {
+            "get": {
+                "tags": [
+                    "MLAs"
+                ],
+                "summary": "List MLA details",
+                "operationId": "ca4eca5ef4685aa35ccfde399070eb34",
+                "parameters": [
+                    {
+                        "name": "constituency",
+                        "in": "query",
+                        "description": "Filter by constituency",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "MLAs list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "constituency": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "mobile_no": {
+                                                "type": "string"
+                                            },
+                                            "address": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notaries": {
+            "get": {
+                "tags": [
+                    "Notaries"
+                ],
+                "summary": "List notaries (paginated)",
+                "operationId": "81961942901c61ddd65f59e996d77a2d",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in professional_address or authorized_area",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page (default 20, max 100)",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated notaries",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "sr_no": {
+                                                        "type": "integer"
+                                                    },
+                                                    "professional_address": {
+                                                        "type": "string"
+                                                    },
+                                                    "authorized_area": {
+                                                        "type": "string"
+                                                    },
+                                                    "contact_no": {
+                                                        "type": "string"
+                                                    },
+                                                    "district": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "total_pages": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/osc": {
+            "get": {
+                "tags": [
+                    "OSC"
+                ],
+                "summary": "List OSC staff",
+                "operationId": "5f9306bc59f07f66a3e1819e0d08d39b",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in name/designation",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OSC staff list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "district_name": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "designation": {
+                                                "type": "string"
+                                            },
+                                            "mobile_number": {
+                                                "type": "string"
+                                            },
+                                            "alternate_number": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "address": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "lat": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "nullable": true
+                                            },
+                                            "lng": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/osc/districts": {
+            "get": {
+                "tags": [
+                    "OSC"
+                ],
+                "summary": "Get OSC districts",
+                "operationId": "72f2cf179a3142a27b7361cdaf00cecd",
+                "responses": {
+                    "200": {
+                        "description": "Distinct districts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/para-legal-volunteers": {
+            "get": {
+                "summary": "List para legal volunteers",
+                "operationId": "4e49cbd437614285f4a7b2cca0a60275",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/para-legal-volunteers/districts": {
+            "get": {
+                "summary": "List districts with para legal volunteers",
+                "operationId": "6de9d2c67a5488a017a5383d8248fa18",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/pro-bono-lawyers": {
+            "get": {
+                "summary": "List pro bono lawyers",
+                "operationId": "50a7b8cf113adee8e482121599c256e0",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/pro-bono-lawyers/districts": {
+            "get": {
+                "summary": "List districts with pro bono lawyers",
+                "operationId": "92ba8352268781ff45c4b43e61bb7951",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/registrars": {
+            "get": {
+                "tags": [
+                    "Registrars"
+                ],
+                "summary": "List registrar directory",
+                "operationId": "6f04ce4e0f7d3c4a136c9a2e6894d022",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district_name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "division",
+                        "in": "query",
+                        "description": "Filter by division",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in registration_id, name or designation",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registrar list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "registrar_id": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "designation": {
+                                                "type": "string"
+                                            },
+                                            "mobile_no": {
+                                                "type": "string"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "lat": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "nullable": true
+                                            },
+                                            "lng": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "nullable": true
+                                            },
+                                            "district_name": {
+                                                "type": "string"
+                                            },
+                                            "division": {
+                                                "type": "string"
+                                            },
+                                            "serial_no": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/registrars/districts": {
+            "get": {
+                "tags": [
+                    "Registrars"
+                ],
+                "summary": "Get registrar districts",
+                "operationId": "fbe27894e91a4327855a4472c3f3fd89",
+                "responses": {
+                    "200": {
+                        "description": "Distinct districts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schemes": {
+            "get": {
+                "summary": "List legal aid schemes",
+                "operationId": "6be2275c7d7021530c06f5404aacff53",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/schemes/{id}/file": {
+            "get": {
+                "summary": "Download scheme PDF",
+                "operationId": "61bf1995e65054f4c8283865e5eb7e34",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/api/standing-counsels": {
+            "get": {
+                "tags": [
+                    "Standing Counsels"
+                ],
+                "summary": "List standing counsels (paginated)",
+                "operationId": "aa2d7b743cffa27acbb5c5ce9e32ca23",
+                "parameters": [
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "description": "Filter by district",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search in counsel_name or allocation_work",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page (default 20, max 100)",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated standing counsels",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "district": {
+                                                        "type": "string"
+                                                    },
+                                                    "serial_no": {
+                                                        "type": "string"
+                                                    },
+                                                    "counsel_name": {
+                                                        "type": "string"
+                                                    },
+                                                    "allocation_work": {
+                                                        "type": "string"
+                                                    },
+                                                    "contact_no": {
+                                                        "type": "string"
+                                                    },
+                                                    "email_id": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "designation": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "total_pages": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/standing-counsels/districts": {
+            "get": {
+                "tags": [
+                    "Standing Counsels"
+                ],
+                "summary": "Get standing counsel districts",
+                "operationId": "16d30e655cf2fc2f415ac6b3ff3bb691",
+                "responses": {
+                    "200": {
+                        "description": "Distinct districts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Advocates",
+            "description": "Advocates"
+        },
+        {
+            "name": "CAT",
+            "description": "CAT"
+        },
+        {
+            "name": "Consumers",
+            "description": "Consumers"
+        },
+        {
+            "name": "Courts",
+            "description": "Courts"
+        },
+        {
+            "name": "DCPU",
+            "description": "DCPU"
+        },
+        {
+            "name": "eCourt Branches",
+            "description": "eCourt Branches"
+        },
+        {
+            "name": "E-Stamp Vendors",
+            "description": "E-Stamp Vendors"
+        },
+        {
+            "name": "FAQ IGR",
+            "description": "FAQ IGR"
+        },
+        {
+            "name": "Law Officers",
+            "description": "Law Officers"
+        },
+        {
+            "name": "MLAs",
+            "description": "MLAs"
+        },
+        {
+            "name": "Notaries",
+            "description": "Notaries"
+        },
+        {
+            "name": "OSC",
+            "description": "OSC"
+        },
+        {
+            "name": "Registrars",
+            "description": "Registrars"
+        },
+        {
+            "name": "Standing Counsels",
+            "description": "Standing Counsels"
+        }
+    ]
+}
