@@ -13,6 +13,7 @@ use App\Http\Controllers\LocationsController;
 use App\Http\Controllers\GrievanceComplaintController;
 use App\Http\Controllers\Api\OpenAIController;
 use App\Http\Controllers\Api\CatController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\CourtMapController;
 use App\Http\Controllers\ConsumerController;
 use App\Http\Controllers\MlaController;
@@ -56,6 +57,7 @@ Route::get('/districts-by-state', [LocationsController::class, 'districts']);
 Route::post('/complaints', [GrievanceComplaintController::class, 'store']);
 
 Route::post('/ai/chat', [OpenAIController::class, 'chat']);
+Route::post('/chat', [ChatController::class, 'chat']);
 
 Route::get('/cat/casedetails', [CatController::class, 'caseDetails']);
 Route::get('/courts/coordinates', [CourtMapController::class, 'index']);
