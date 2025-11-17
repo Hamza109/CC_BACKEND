@@ -126,51 +126,51 @@
                 }
             }
         },
-        "/api/cat/casedetails": {
-            "get": {
+        "/api/cat/case-details": {
+            "post": {
                 "tags": [
                     "CAT"
                 ],
                 "summary": "Get CAT case details by case number",
-                "operationId": "aadeb09aceaeb5c363fae0832cb9bb74",
-                "parameters": [
-                    {
-                        "name": "caseNo",
-                        "in": "query",
-                        "description": "Case number",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "caseType",
-                        "in": "query",
-                        "description": "Case type (e.g., OA)",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "caseYear",
-                        "in": "query",
-                        "description": "Case year (e.g., 2024)",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "location",
-                        "in": "query",
-                        "description": "Location code",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                "operationId": "51a9b69c90406fa2436b67d9563b1e44",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "catschemaId",
+                                    "casetypeId",
+                                    "caseNo",
+                                    "caseYear"
+                                ],
+                                "properties": {
+                                    "catschemaId": {
+                                        "description": "Location code (e.g., 117 for Jammu, 119 for Srinagar)",
+                                        "type": "string",
+                                        "example": "117"
+                                    },
+                                    "casetypeId": {
+                                        "description": "Case type ID (e.g., 1 for Original Application)",
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "caseNo": {
+                                        "description": "Case number",
+                                        "type": "string",
+                                        "example": "123"
+                                    },
+                                    "caseYear": {
+                                        "description": "Case year",
+                                        "type": "string",
+                                        "example": "2024"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "Successful response",
@@ -184,7 +184,7 @@
                                                     "type": "string",
                                                     "example": "success"
                                                 },
-                                                "message": {
+                                                "data": {
                                                     "type": "object"
                                                 }
                                             },
@@ -210,6 +210,608 @@
                     },
                     "400": {
                         "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/cat/daily-orders": {
+            "post": {
+                "tags": [
+                    "CAT"
+                ],
+                "summary": "Get CAT daily orders by case number",
+                "operationId": "21a63b4c4c0cc038060c925ee2dc1df2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "catschemaId",
+                                    "casetypeId",
+                                    "caseNo",
+                                    "caseYear"
+                                ],
+                                "properties": {
+                                    "catschemaId": {
+                                        "description": "Location code (e.g., 117 for Jammu, 119 for Srinagar)",
+                                        "type": "string",
+                                        "example": "117"
+                                    },
+                                    "casetypeId": {
+                                        "description": "Case type ID (e.g., 1 for Original Application)",
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "caseNo": {
+                                        "description": "Case number",
+                                        "type": "string",
+                                        "example": "123"
+                                    },
+                                    "caseYear": {
+                                        "description": "Case year",
+                                        "type": "string",
+                                        "example": "2024"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "error": {
+                                                    "type": "string",
+                                                    "example": "Invalid API response or no data found"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/cat/final-orders": {
+            "post": {
+                "tags": [
+                    "CAT"
+                ],
+                "summary": "Get CAT final orders by case number",
+                "operationId": "42219f595ed811e66264e4fb7b229594",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "catschemaId",
+                                    "casetypeId",
+                                    "caseNo",
+                                    "caseYear"
+                                ],
+                                "properties": {
+                                    "catschemaId": {
+                                        "description": "Location code (e.g., 117 for Jammu, 119 for Srinagar)",
+                                        "type": "string",
+                                        "example": "117"
+                                    },
+                                    "casetypeId": {
+                                        "description": "Case type ID (e.g., 1 for Original Application)",
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "caseNo": {
+                                        "description": "Case number",
+                                        "type": "string",
+                                        "example": "123"
+                                    },
+                                    "caseYear": {
+                                        "description": "Case year",
+                                        "type": "string",
+                                        "example": "2024"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "error": {
+                                                    "type": "string",
+                                                    "example": "Invalid API response or no data found"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/cat/cases/search": {
+            "get": {
+                "tags": [
+                    "CAT"
+                ],
+                "summary": "Search cases",
+                "description": "Searches the cases table using optional filters.",
+                "operationId": "6340a30f36b52db553af1e73f23bfba6",
+                "parameters": [
+                    {
+                        "name": "applicant",
+                        "in": "query",
+                        "description": "Filter by applicant name (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "John Doe"
+                        }
+                    },
+                    {
+                        "name": "respondent",
+                        "in": "query",
+                        "description": "Filter by respondent name (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "State"
+                        }
+                    },
+                    {
+                        "name": "applicantadvocate1",
+                        "in": "query",
+                        "description": "Filter by applicant advocate 1 (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Adv. Sharma"
+                        }
+                    },
+                    {
+                        "name": "applicantadvocate",
+                        "in": "query",
+                        "description": "Filter by applicant advocate (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Adv. Kumar"
+                        }
+                    },
+                    {
+                        "name": "respondentadvocate",
+                        "in": "query",
+                        "description": "Filter by respondent advocate (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Adv. Singh"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Filter by location (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Jammu"
+                        }
+                    },
+                    {
+                        "name": "case_type",
+                        "in": "query",
+                        "description": "Filter by case type (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Civil"
+                        }
+                    },
+                    {
+                        "name": "case_no",
+                        "in": "query",
+                        "description": "Filter by case number (exact match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "123"
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Filter by year (exact match)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2024
+                        }
+                    },
+                    {
+                        "name": "caseno",
+                        "in": "query",
+                        "description": "Filter by caseno (exact match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "123/2024"
+                        }
+                    },
+                    {
+                        "name": "caseType",
+                        "in": "query",
+                        "description": "Filter by caseType (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "OA"
+                        }
+                    },
+                    {
+                        "name": "casestatus",
+                        "in": "query",
+                        "description": "Filter by case status (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Pending"
+                        }
+                    },
+                    {
+                        "name": "courtName",
+                        "in": "query",
+                        "description": "Filter by court name (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "CAT Jammu"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Results per page (default 20, max 100)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "example": 20
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful search",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 20
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/hc-cases/search": {
+            "get": {
+                "tags": [
+                    "High Court"
+                ],
+                "summary": "Search High Court cases",
+                "description": "Searches the hc_case_full_details table using optional filters.",
+                "operationId": "f486bb07901f4c5bb24c7998db92afe2",
+                "parameters": [
+                    {
+                        "name": "pet_name",
+                        "in": "query",
+                        "description": "Filter by petitioner name (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Amit"
+                        }
+                    },
+                    {
+                        "name": "pet_adv",
+                        "in": "query",
+                        "description": "Filter by petitioner advocate (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Adv. Sharma"
+                        }
+                    },
+                    {
+                        "name": "res_name",
+                        "in": "query",
+                        "description": "Filter by respondent name (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "State of J&K"
+                        }
+                    },
+                    {
+                        "name": "res_adv",
+                        "in": "query",
+                        "description": "Filter by respondent advocate (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Adv. Khan"
+                        }
+                    },
+                    {
+                        "name": "sub_category",
+                        "in": "query",
+                        "description": "Filter by sub category (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Civil"
+                        }
+                    },
+                    {
+                        "name": "est_code",
+                        "in": "query",
+                        "description": "Filter by establishment code (exact match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "JKOJ"
+                        }
+                    },
+                    {
+                        "name": "case_type",
+                        "in": "query",
+                        "description": "Filter by case type id (exact match)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 171
+                        }
+                    },
+                    {
+                        "name": "reg_year",
+                        "in": "query",
+                        "description": "Filter by registration year (exact match)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2023
+                        }
+                    },
+                    {
+                        "name": "reg_no",
+                        "in": "query",
+                        "description": "Filter by registration number (exact match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "328"
+                        }
+                    },
+                    {
+                        "name": "cino",
+                        "in": "query",
+                        "description": "Filter by CINO (exact match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "JKHC010002862013"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Results per page (default 20, max 100)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "example": 20
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful search",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 20
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1491,6 +2093,109 @@
                 }
             }
         },
+        "/api/page-hits": {
+            "post": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Store a page hit entry",
+                "operationId": "87a6b543acf22d1b62656f45693dba6b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "page_name"
+                                ],
+                                "properties": {
+                                    "page_name": {
+                                        "type": "string",
+                                        "example": "home"
+                                    },
+                                    "ip_address": {
+                                        "type": "string",
+                                        "example": "192.168.1.10"
+                                    },
+                                    "browser": {
+                                        "type": "string",
+                                        "example": "Chrome 118"
+                                    },
+                                    "latitude": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 34.0837
+                                    },
+                                    "longitude": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 74.7973
+                                    },
+                                    "district": {
+                                        "type": "string",
+                                        "example": "Srinagar"
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "example": "Jammu & Kashmir"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "India"
+                                    },
+                                    "created_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2025-01-15T10:30:00Z"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Page hit stored successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/para-legal-volunteers": {
             "get": {
                 "summary": "List para legal volunteers",
@@ -1853,6 +2558,10 @@
             "description": "CAT"
         },
         {
+            "name": "High Court",
+            "description": "High Court"
+        },
+        {
             "name": "Consumers",
             "description": "Consumers"
         },
@@ -1891,6 +2600,10 @@
         {
             "name": "OSC",
             "description": "OSC"
+        },
+        {
+            "name": "Analytics",
+            "description": "Analytics"
         },
         {
             "name": "Registrars",

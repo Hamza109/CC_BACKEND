@@ -4,43 +4,26 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use OpenApi\Annotations as OA;
 
 class CatController extends Controller
 {
     /**
-     * @OA\Get(
-     *   path="/api/cat/casedetails",
+     * @OA\Post(
+     *   path="/api/cat/case-details",
      *   summary="Get CAT case details by case number",
      *   tags={"CAT"},
-     *   @OA\Parameter(
-     *     name="caseNo",
-     *     in="query",
-     *     description="Case number",
+     *   @OA\RequestBody(
      *     required=true,
-     *     @OA\Schema(type="string")
-     *   ),
-     *   @OA\Parameter(
-     *     name="caseType",
-     *     in="query",
-     *     description="Case type (e.g., OA)",
-     *     required=true,
-     *     @OA\Schema(type="string")
-     *   ),
-     *   @OA\Parameter(
-     *     name="caseYear",
-     *     in="query",
-     *     description="Case year (e.g., 2024)",
-     *     required=true,
-     *     @OA\Schema(type="string")
-     *   ),
-     *   @OA\Parameter(
-     *     name="location",
-     *     in="query",
-     *     description="Location code",
-     *     required=true,
-     *     @OA\Schema(type="string")
+     *     @OA\JsonContent(
+     *       required={"catschemaId", "casetypeId", "caseNo", "caseYear"},
+     *       @OA\Property(property="catschemaId", type="string", description="Location code (e.g., 117 for Jammu, 119 for Srinagar)", example="117"),
+     *       @OA\Property(property="casetypeId", type="string", description="Case type ID (e.g., 1 for Original Application)", example="1"),
+     *       @OA\Property(property="caseNo", type="string", description="Case number", example="123"),
+     *       @OA\Property(property="caseYear", type="string", description="Case year", example="2024")
+     *     )
      *   ),
      *   @OA\Response(
      *     response=200,
@@ -50,7 +33,7 @@ class CatController extends Controller
      *         @OA\Schema(
      *           type="object",
      *           @OA\Property(property="status", type="string", example="success"),
-     *           @OA\Property(property="message", type="object")
+     *           @OA\Property(property="data", type="object")
      *         ),
      *         @OA\Schema(
      *           type="object",
@@ -68,56 +51,541 @@ class CatController extends Controller
      */
     public function caseDetails(Request $request)
     {
-        // Accept either camelCase (caseNo, caseType, caseYear, location) or snake_case
-        $caseNo = trim((string) ($request->query('caseNo') ?? $request->query('case_no') ?? ''));
-        $caseType = trim((string) ($request->query('caseType') ?? $request->query('case_type') ?? ''));
-        $caseYear = trim((string) ($request->query('caseYear') ?? $request->query('case_year') ?? ''));
-        $location = trim((string) ($request->query('location') ?? $request->query('location_code') ?? ''));
+        $catschemaId = trim((string) ($request->input('catschemaId') ?? ''));
+        $casetypeId = trim((string) ($request->input('casetypeId') ?? ''));
+        $caseNo = trim((string) ($request->input('caseNo') ?? ''));
+        $caseYear = trim((string) ($request->input('caseYear') ?? ''));
 
-        if (!$caseNo || !$caseType || !$caseYear || !$location) {
-            return response()->json(['status' => 'error', 'error' => 'Missing required parameters']);
+        if (!$catschemaId || !$casetypeId || !$caseNo || !$caseYear) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Missing required parameters: catschemaId, casetypeId, caseNo, caseYear'
+            ], 400);
         }
-
-        $apiUrl = 'https://cgat.gov.in/api/index.php/cat/v1/casedetailcaseno'
-            . '?case_no=' . urlencode($caseNo)
-            . '&case_year=' . urlencode($caseYear)
-            . '&case_type=' . urlencode($caseType)
-            . '&location_code=' . urlencode($location);
 
         $ch = curl_init();
         curl_setopt_array($ch, [
-            CURLOPT_URL => $apiUrl,
+            CURLOPT_URL => 'https://cgat.gov.in/catapi/casedetail_individual_case_no_wise11',
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTPAUTH => CURLAUTH_DIGEST,
-            CURLOPT_USERPWD => 'admin:1234',
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_TIMEOUT => 10,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => [
+                'catschemaId' => $catschemaId,
+                'casetypeId' => $casetypeId,
+                'caseNo' => $caseNo,
+                'caseYear' => $caseYear
+            ],
             CURLOPT_HTTPHEADER => [
                 'Accept: application/json',
             ],
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false,
         ]);
 
-        $curlResponse = curl_exec($ch);
-        if ($curlResponse === false) {
+        $response = curl_exec($ch);
+        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
             $error = curl_error($ch);
             curl_close($ch);
-            return response()->json(['status' => 'error', 'error' => 'Curl error: ' . $error]);
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Curl error: ' . $error
+            ], 500);
         }
 
-        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        $data = json_decode($curlResponse, true);
         if ($httpStatus >= 400) {
-            return response()->json(['status' => 'error', 'error' => 'CAT API ' . $httpStatus . ': ' . $curlResponse], $httpStatus);
+            return response()->json([
+                'status' => 'error',
+                'error' => 'CAT API returned status ' . $httpStatus . ': ' . $response
+            ], $httpStatus);
         }
 
-        if (is_array($data) && isset($data['status']) && $data['status'] === 'success') {
-            return response()->json(['status' => 'success', 'message' => $data['message']]);
+        $data = json_decode($response, true);
+        if (!$data) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Invalid JSON response from CAT API'
+            ], 500);
         }
 
-        return response()->json(['status' => 'error', 'error' => 'Invalid API response or no data found']);
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * @OA\Post(
+     *   path="/api/cat/daily-orders",
+     *   summary="Get CAT daily orders by case number",
+     *   tags={"CAT"},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       required={"catschemaId", "casetypeId", "caseNo", "caseYear"},
+     *       @OA\Property(property="catschemaId", type="string", description="Location code (e.g., 117 for Jammu, 119 for Srinagar)", example="117"),
+     *       @OA\Property(property="casetypeId", type="string", description="Case type ID (e.g., 1 for Original Application)", example="1"),
+     *       @OA\Property(property="caseNo", type="string", description="Case number", example="123"),
+     *       @OA\Property(property="caseYear", type="string", description="Case year", example="2024")
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Successful response",
+     *     @OA\JsonContent(
+     *       oneOf={
+     *         @OA\Schema(
+     *           type="object",
+     *           @OA\Property(property="status", type="string", example="success"),
+     *           @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *         ),
+     *         @OA\Schema(
+     *           type="object",
+     *           @OA\Property(property="status", type="string", example="error"),
+     *           @OA\Property(property="error", type="string", example="Invalid API response or no data found")
+     *         )
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad request"
+     *   )
+     * )
+     */
+    public function dailyOrders(Request $request)
+    {
+        $catschemaId = trim((string) ($request->input('catschemaId') ?? ''));
+        $casetypeId = trim((string) ($request->input('casetypeId') ?? ''));
+        $caseNo = trim((string) ($request->input('caseNo') ?? ''));
+        $caseYear = trim((string) ($request->input('caseYear') ?? ''));
+
+        if (!$catschemaId || !$casetypeId || !$caseNo || !$caseYear) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Missing required parameters: catschemaId, casetypeId, caseNo, caseYear'
+            ], 400);
+        }
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => 'https://cgat.gov.in/catapi/getCatDailyOrderReportCaseNo',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => http_build_query([
+                'catschemaId' => $catschemaId,
+                'caseYear' => $caseYear,
+                'caseType' => $casetypeId,
+                'caseNo' => $caseNo
+            ]),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/x-www-form-urlencoded',
+                'Accept: application/json',
+            ],
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Curl error: ' . $error
+            ], 500);
+        }
+
+        curl_close($ch);
+
+        if ($httpStatus >= 400) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'CAT API returned status ' . $httpStatus . ': ' . $response
+            ], $httpStatus);
+        }
+
+        $data = json_decode($response, true);
+        if (!$data) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Invalid JSON response from CAT API'
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => is_array($data) ? $data : []
+        ]);
+    }
+
+    /**
+     * @OA\Post(
+     *   path="/api/cat/final-orders",
+     *   summary="Get CAT final orders by case number",
+     *   tags={"CAT"},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       required={"catschemaId", "casetypeId", "caseNo", "caseYear"},
+     *       @OA\Property(property="catschemaId", type="string", description="Location code (e.g., 117 for Jammu, 119 for Srinagar)", example="117"),
+     *       @OA\Property(property="casetypeId", type="string", description="Case type ID (e.g., 1 for Original Application)", example="1"),
+     *       @OA\Property(property="caseNo", type="string", description="Case number", example="123"),
+     *       @OA\Property(property="caseYear", type="string", description="Case year", example="2024")
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Successful response",
+     *     @OA\JsonContent(
+     *       oneOf={
+     *         @OA\Schema(
+     *           type="object",
+     *           @OA\Property(property="status", type="string", example="success"),
+     *           @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *         ),
+     *         @OA\Schema(
+     *           type="object",
+     *           @OA\Property(property="status", type="string", example="error"),
+     *           @OA\Property(property="error", type="string", example="Invalid API response or no data found")
+     *         )
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad request"
+     *   )
+     * )
+     */
+    public function finalOrders(Request $request)
+    {
+        $catschemaId = trim((string) ($request->input('catschemaId') ?? ''));
+        $casetypeId = trim((string) ($request->input('casetypeId') ?? ''));
+        $caseNo = trim((string) ($request->input('caseNo') ?? ''));
+        $caseYear = trim((string) ($request->input('caseYear') ?? ''));
+
+        if (!$catschemaId || !$casetypeId || !$caseNo || !$caseYear) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Missing required parameters: catschemaId, casetypeId, caseNo, caseYear'
+            ], 400);
+        }
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => 'https://cgat.gov.in/catapi/getCatFinalOrderReportCaseNo',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => http_build_query([
+                'catschemaId' => $catschemaId,
+                'caseYear' => $caseYear,
+                'caseType' => $casetypeId,
+                'caseNo' => $caseNo
+            ]),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/x-www-form-urlencoded',
+                'Accept: application/json',
+            ],
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Curl error: ' . $error
+            ], 500);
+        }
+
+        curl_close($ch);
+
+        if ($httpStatus >= 400) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'CAT API returned status ' . $httpStatus . ': ' . $response
+            ], $httpStatus);
+        }
+
+        $data = json_decode($response, true);
+        if (!$data) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Invalid JSON response from CAT API'
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => is_array($data) ? $data : []
+        ]);
+    }
+
+    /**
+     * @OA\Get(
+     *   path="/api/cat/cases/search",
+     *   summary="Search cases",
+     *   description="Searches the cases table using optional filters.",
+     *   tags={"CAT"},
+     *   @OA\Parameter(
+     *     name="applicant",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by applicant name (partial match)",
+     *     @OA\Schema(type="string", example="John Doe")
+     *   ),
+     *   @OA\Parameter(
+     *     name="respondent",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by respondent name (partial match)",
+     *     @OA\Schema(type="string", example="State")
+     *   ),
+     *   @OA\Parameter(
+     *     name="applicantadvocate1",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by applicant advocate 1 (partial match)",
+     *     @OA\Schema(type="string", example="Adv. Sharma")
+     *   ),
+     *   @OA\Parameter(
+     *     name="applicantadvocate",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by applicant advocate (partial match)",
+     *     @OA\Schema(type="string", example="Adv. Kumar")
+     *   ),
+     *   @OA\Parameter(
+     *     name="respondentadvocate",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by respondent advocate (partial match)",
+     *     @OA\Schema(type="string", example="Adv. Singh")
+     *   ),
+     *   @OA\Parameter(
+     *     name="location",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by location (partial match)",
+     *     @OA\Schema(type="string", example="Jammu")
+     *   ),
+     *   @OA\Parameter(
+     *     name="case_type",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by case type (partial match)",
+     *     @OA\Schema(type="string", example="Civil")
+     *   ),
+     *   @OA\Parameter(
+     *     name="case_no",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by case number (exact match)",
+     *     @OA\Schema(type="string", example="123")
+     *   ),
+     *   @OA\Parameter(
+     *     name="year",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by year (exact match)",
+     *     @OA\Schema(type="integer", example=2024)
+     *   ),
+     *   @OA\Parameter(
+     *     name="caseno",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by caseno (exact match)",
+     *     @OA\Schema(type="string", example="123/2024")
+     *   ),
+     *   @OA\Parameter(
+     *     name="caseType",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by caseType (partial match)",
+     *     @OA\Schema(type="string", example="OA")
+     *   ),
+     *   @OA\Parameter(
+     *     name="casestatus",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by case status (partial match)",
+     *     @OA\Schema(type="string", example="Pending")
+     *   ),
+     *   @OA\Parameter(
+     *     name="courtName",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by court name (partial match)",
+     *     @OA\Schema(type="string", example="CAT Jammu")
+     *   ),
+     *   @OA\Parameter(
+     *     name="per_page",
+     *     in="query",
+     *     required=false,
+     *     description="Results per page (default 20, max 100)",
+     *     @OA\Schema(type="integer", minimum=1, maximum=100, example=20)
+     *   ),
+     *   @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     required=false,
+     *     description="Page number (default 1)",
+     *     @OA\Schema(type="integer", minimum=1, example=1)
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Successful search",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="status", type="string", example="success"),
+     *       @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *       @OA\Property(property="meta", type="object",
+     *         @OA\Property(property="current_page", type="integer", example=1),
+     *         @OA\Property(property="per_page", type="integer", example=20),
+     *         @OA\Property(property="total", type="integer", example=200)
+     *       )
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=422,
+     *     description="Validation error",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="status", type="string", example="error"),
+     *       @OA\Property(property="errors", type="object")
+     *     )
+     *   )
+     * )
+     */
+    public function search(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'applicant' => ['nullable', 'string'],
+            'respondent' => ['nullable', 'string'],
+            'applicantadvocate1' => ['nullable', 'string'],
+            'applicantadvocate' => ['nullable', 'string'],
+            'respondentadvocate' => ['nullable', 'string'],
+            'location' => ['nullable', 'string'],
+            'case_type' => ['nullable', 'string'],
+            'case_no' => ['nullable', 'string'],
+            'year' => ['nullable', 'integer'],
+            'caseno' => ['nullable', 'string'],
+            'caseType' => ['nullable', 'string'],
+            'casestatus' => ['nullable', 'string'],
+            'courtName' => ['nullable', 'string'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $filters = $validator->validated();
+        $perPage = $filters['per_page'] ?? 20;
+
+        $query = DB::table('cases');
+
+        // Like filters for partial matching
+        $likeFilters = [
+            'applicant',
+            'respondent',
+            'applicantadvocate1',
+            'applicantadvocate',
+            'respondentadvocate',
+            'location',
+            'case_type',
+            'caseType',
+            'casestatus',
+            'courtName',
+        ];
+
+        foreach ($likeFilters as $field) {
+            if (!empty($filters[$field])) {
+                $value = mb_strtolower($filters[$field]);
+                $query->whereRaw('LOWER(' . $field . ') LIKE ?', ['%' . $value . '%']);
+            }
+        }
+
+        // Exact filters
+        $exactFilters = [
+            'case_no' => 'case_no',
+            'year' => 'year',
+            'caseno' => 'caseno',
+        ];
+
+        foreach ($exactFilters as $inputKey => $column) {
+            if (isset($filters[$inputKey]) && $filters[$inputKey] !== '') {
+                $query->where($column, $filters[$inputKey]);
+            }
+        }
+
+        // Select all columns with combined fields
+        // Use applicantadvocate1 if available, otherwise applicantadvocate
+        // Use nextlistingdate1 if available, otherwise nextlistingdate2
+        $query->select([
+            'id',
+            'location',
+            'case_type',
+            'case_no',
+            'year',
+            'caseno',
+            'caseType',
+            'casestatus',
+            'applicant',
+            'respondent',
+            DB::raw('COALESCE(NULLIF(applicantadvocate1, \'\'), applicantadvocate) as applicantadvocate'),
+            'respondentadvocate',
+            DB::raw('COALESCE(NULLIF(nextlistingdate1, \'\'), nextlistingdate2) as nextlistingdate'),
+            'lastlistingdate',
+            'additionalpartypet',
+            'additionalpartyres',
+            'dateofdisposal',
+            'nextListingPurpose',
+            'courtNo',
+            'courtName',
+            'disposalNature',
+            'dateoffiling',
+            'petitioner_file',
+            'reply_file',
+        ])->orderByDesc('dateoffiling');
+
+        $results = $query->paginate($perPage);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $results->items(),
+            'meta' => [
+                'current_page' => $results->currentPage(),
+                'per_page' => $results->perPage(),
+                'total' => $results->total(),
+                'last_page' => $results->lastPage(),
+            ],
+        ]);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\LegalAidClinicController;
 use App\Http\Controllers\ProBonoLawyerController;
 use App\Http\Controllers\DistrictLitigationOfficerController;
 use App\Http\Controllers\ParaLegalVolunteerController;
+use App\Http\Controllers\PageHitController;
 use App\Http\Controllers\DlsaController;
 use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\LiteracyClubController;
@@ -14,6 +15,8 @@ use App\Http\Controllers\GrievanceComplaintController;
 use App\Http\Controllers\Api\OpenAIController;
 use App\Http\Controllers\Api\CatController;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\HcCaseController;
+use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\CourtMapController;
 use App\Http\Controllers\ConsumerController;
 use App\Http\Controllers\MlaController;
@@ -55,11 +58,17 @@ Route::get('/states', [LocationsController::class, 'states']);
 Route::get('/districts-by-state', [LocationsController::class, 'districts']);
 
 Route::post('/complaints', [GrievanceComplaintController::class, 'store']);
+Route::post('/page-hits', [PageHitController::class, 'store']);
 
 Route::post('/ai/chat', [OpenAIController::class, 'chat']);
 Route::post('/chat', [ChatController::class, 'chat']);
+Route::post('/otp/send', [OtpController::class, 'sendOtp']);
 
-Route::get('/cat/casedetails', [CatController::class, 'caseDetails']);
+Route::post('/cat/case-details', [CatController::class, 'caseDetails']);
+Route::post('/cat/daily-orders', [CatController::class, 'dailyOrders']);
+Route::post('/cat/final-orders', [CatController::class, 'finalOrders']);
+Route::get('/cat/cases/search', [CatController::class, 'search']);
+Route::get('/hc-cases/search', [HcCaseController::class, 'search']);
 Route::get('/courts/coordinates', [CourtMapController::class, 'index']);
 Route::get('/courts/districts', [CourtMapController::class, 'districts']);
 Route::get('/consumers', [ConsumerController::class, 'index']);
