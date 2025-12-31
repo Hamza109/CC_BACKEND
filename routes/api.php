@@ -32,12 +32,14 @@ use App\Http\Controllers\AdvocateController;
 use App\Http\Controllers\LawOfficerController;
 
 // Public routes - OTP endpoints (no authentication required)
-Route::post('/otp/send', [OtpController::class, 'sendOtp']);
-Route::post('/otp/verify', [OtpController::class, 'verifyOtp']);
-Route::post('/otp/refresh', [OtpController::class, 'refreshToken']);
-
+// Apply strict rate limiting to prevent abuse
+Route::post('/otp/send', [OtpController::class, 'sendOtp'])->middleware('throttle:otp');
+Route::post('/otp/verify', [OtpController::class, 'verifyOtp'])->middleware('throttle:otp-verify');
+Route::post('/otp/refresh', [OtpController::class, 'refreshToken'])->middleware('throttle:otp');
+Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:chat');
 // Protected routes - All other routes require JWT authentication
-Route::middleware(['jwt.auth'])->group(function () {
+// Apply general API rate limiting (60 requests per minute)
+Route::middleware(['jwt.auth', 'throttle:api'])->group(function () {
     Route::get('/districts', [LegalAidClinicController::class, 'districts']);
     Route::get('/legal-aid-clinics', [LegalAidClinicController::class, 'index']);
 
@@ -68,13 +70,13 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::post('/page-hits', [PageHitController::class, 'store']);
 
     Route::post('/ai/chat', [OpenAIController::class, 'chat']);
-    Route::post('/chat', [ChatController::class, 'chat']);
+
 
     Route::post('/cat/case-details', [CatController::class, 'caseDetails']);
     Route::post('/cat/daily-orders', [CatController::class, 'dailyOrders']);
     Route::post('/cat/final-orders', [CatController::class, 'finalOrders']);
-    Route::get('/cat/cases/search', [CatController::class, 'search']);
-    Route::get('/hc-cases/search', [HcCaseController::class, 'search']);
+    Route::get('/cat/cases/search', [CatController::class, 'search'])->middleware('throttle:search');
+    Route::get('/hc-cases/search', [HcCaseController::class, 'search'])->middleware('throttle:search');
     Route::get('/courts/coordinates', [CourtMapController::class, 'index']);
     Route::get('/courts/districts', [CourtMapController::class, 'districts']);
     Route::get('/consumers', [ConsumerController::class, 'index']);

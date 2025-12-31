@@ -308,23 +308,29 @@ class OtpController extends Controller
             $request->userAgent()
         );
 
+        // Determine if we're in secure environment (HTTPS)
+        $isSecure = request()->secure() || config('app.env') === 'production';
+        
+        // Create response with explicit JSON content type
         $response = response()->json([
             'status' => 'success',
             'message' => 'OTP verified successfully',
             'access_token' => $accessToken,
             'token_type' => 'Bearer',
             'expires_in' => 3600, // 1 hour
-        ], 200);
+        ], 200)->header('Content-Type', 'application/json');
 
-        // Set refresh token as HttpOnly Secure cookie
+        // Set refresh token as HttpOnly Secure cookie with SameSite protection
         $response->cookie(
             'refresh_token',
             $refreshTokenData['token'],
             60 * 24 * 30, // 30 days
             '/',
-            null,
-            true, // Secure (HTTPS only)
-            true  // HttpOnly
+            null, // Domain - null means current domain
+            $isSecure, // Secure (HTTPS only in production)
+            true,  // HttpOnly - prevents JavaScript access (CRITICAL for security)
+            false, // Raw - don't URL encode
+            'Lax'  // SameSite - prevents CSRF attacks
         );
 
         return $response;

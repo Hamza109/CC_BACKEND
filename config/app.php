@@ -107,6 +107,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Mobile App Encryption Key
+    |--------------------------------------------------------------------------
+    |
+    | This key is used to decrypt AES-256-CBC encrypted payloads from the
+    | React Native mobile app. Must match the key in the mobile app.
+    | Set this in your ".env" file as ENCRYPTION_KEY.
+    |
+    */
+
+    'encryption_key' => env('ENCRYPTION_KEY', 'your-32-character-secret-key-here'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |

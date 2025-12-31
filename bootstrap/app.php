@@ -12,8 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Register middleware aliases
         $middleware->alias([
             'jwt.auth' => \App\Http\Middleware\VerifyJwtToken::class,
+            'decrypt' => \App\Http\Middleware\DecryptRequest::class,
+        ]);
+        
+        // Apply middleware to API routes
+        $middleware->api(prepend: [
+            \App\Http\Middleware\ForceJsonResponse::class,
+            \App\Http\Middleware\DecryptRequest::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
