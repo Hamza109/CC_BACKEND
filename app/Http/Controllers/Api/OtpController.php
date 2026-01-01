@@ -70,164 +70,191 @@ class OtpController extends Controller
      */
     public function sendOtp(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'mobile_number' => ['required', 'string', 'regex:/^[0-9]{10,15}$/'],
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'mobile_number' => ['required', 'string', 'regex:/^[0-9]{10,15}$/'],
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422)->header('Content-Type', 'application/json');
+            }
 
-        $mobileNumber = trim($request->input('mobile_number'));
-        
-        // If mobile number doesn't start with country code (91 for India), add it
-        if (strlen($mobileNumber) === 10) {
-            $mobileNumber = '91' . $mobileNumber;
-        }
+            $mobileNumber = trim($request->input('mobile_number'));
+            
+            // If mobile number doesn't start with country code (91 for India), add it
+            if (strlen($mobileNumber) === 10) {
+                $mobileNumber = '91' . $mobileNumber;
+            }
 
-        // Always generate a fresh 6-digit OTP
-        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            // Always generate a fresh 6-digit OTP
+            $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Store OTP hash (NOT plaintext) - do this BEFORE sending SMS
-        OtpVerification::createForMobile(
-            $mobileNumber,
-            $otp,
-            $request->ip()
-        );
+            // Store OTP hash (NOT plaintext) - do this BEFORE sending SMS
+            OtpVerification::createForMobile(
+                $mobileNumber,
+                $otp,
+                $request->ip()
+            );
 
-        // Format message
-        $message = "Your OTP is {$otp} 10 Cases will be heard on 16-11-2025. Check details on LMS Portal at https://jklms.jk.gov.in/u.php?i=hmdbranc49&d=HMD&o=14-11-2025 - JKGOVT
+            // Format message
+            $message = "Your OTP is {$otp} 10 Cases will be heard on 16-11-2025. Check details on LMS Portal at https://jklms.jk.gov.in/u.php?i=hmdbranc49&d=HMD&o=14-11-2025 - JKGOVT
 ";
 
-        // Generate the key
-        $key = hash('sha512', trim($this->username) . trim($this->senderid) . trim($message) . trim($this->deptSecureKey));
+            // Generate the key
+            $key = hash('sha512', trim($this->username) . trim($this->senderid) . trim($message) . trim($this->deptSecureKey));
 
-        // Log credentials for debugging (remove in production)
-        Log::debug('OTP SMS Request Details', [
-            'username' => $this->username,
-            'password_hash' => $this->password,
-            'senderid' => $this->senderid,
-            'mobile_number' => $mobileNumber,
-            'message' => $message,
-            'key' => $key,
-        ]);
+            // Log credentials for debugging (remove in production)
+            Log::debug('OTP SMS Request Details', [
+                'username' => $this->username,
+                'password_hash' => $this->password,
+                'senderid' => $this->senderid,
+                'mobile_number' => $mobileNumber,
+                'message' => $message,
+                'key' => $key,
+            ]);
 
-        // Initialize cURL
-        $ch = curl_init();
+            // Initialize cURL
+            $ch = curl_init();
 
-        // Build POST data exactly like the test PHP file - using http_build_query
-        $postData = http_build_query([
-            'username' => $this->username,
-            'password' => $this->password,
-            'senderid' => $this->senderid,
-            'content' => $message,
-            'smsservicetype' => 'singlemsg',
-            'mobileno' => $mobileNumber,
-            'key' => $key,
-            'templateid' => $this->templateId,
-        ]);
+            // Build POST data exactly like the test PHP file - using http_build_query
+            $postData = http_build_query([
+                'username' => $this->username,
+                'password' => $this->password,
+                'senderid' => $this->senderid,
+                'content' => $message,
+                'smsservicetype' => 'singlemsg',
+                'mobileno' => $mobileNumber,
+                'key' => $key,
+                'templateid' => $this->templateId,
+            ]);
 
-        // Log the exact data being sent
-        Log::debug('OTP SMS Request Data', [
-            'post_data_string' => $postData,
-        ]);
+            // Log the exact data being sent
+            Log::debug('OTP SMS Request Data', [
+                'post_data_string' => $postData,
+            ]);
 
-        // Set cURL options - exactly like the test PHP file
-        curl_setopt($ch, CURLOPT_URL, $this->smsUrl);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSLVERSION, 6);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
-        // Enable verbose output for debugging (can be removed later)
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        $verbose = fopen('php://temp', 'w+');
-        curl_setopt($ch, CURLOPT_STDERR, $verbose);
+            // Set cURL options - exactly like the test PHP file
+            curl_setopt($ch, CURLOPT_URL, $this->smsUrl);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSLVERSION, 6);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            
+            // Enable verbose output for debugging (can be removed later)
+            curl_setopt($ch, CURLOPT_VERBOSE, true);
+            $verbose = fopen('php://temp', 'w+');
+            curl_setopt($ch, CURLOPT_STDERR, $verbose);
 
-        // Uncomment if proxy is needed
-        // curl_setopt($ch, CURLOPT_PROXY, $this->proxy);
-        // curl_setopt($ch, CURLOPT_PROXYPORT, $this->proxyPort);
+            // Uncomment if proxy is needed
+            // curl_setopt($ch, CURLOPT_PROXY, $this->proxy);
+            // curl_setopt($ch, CURLOPT_PROXYPORT, $this->proxyPort);
 
-        // Execute the request
-        $curl_output = curl_exec($ch);
-        
-        // Get verbose output
-        rewind($verbose);
-        $verboseLog = stream_get_contents($verbose);
-        fclose($verbose);
+            // Execute the request
+            $curl_output = curl_exec($ch);
+            
+            // Get verbose output
+            rewind($verbose);
+            $verboseLog = stream_get_contents($verbose);
+            fclose($verbose);
 
-        // Check for cURL errors
-        if ($curl_output === false) {
-            $error = curl_error($ch);
+            // Check for cURL errors
+            if ($curl_output === false) {
+                $error = curl_error($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                
+                Log::error('OTP SMS cURL Error', [
+                    'mobile_number' => $mobileNumber,
+                    'error' => $error,
+                    'http_code' => $httpCode,
+                    'verbose' => $verboseLog,
+                ]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to send OTP. Please try again later.',
+                    'error_code' => 'SMS_SEND_FAILED',
+                ], 500)->header('Content-Type', 'application/json');
+            }
+            
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-            
-            Log::error('OTP SMS cURL Error', [
+
+            // Log the response with full details
+            Log::info('OTP SMS Response', [
                 'mobile_number' => $mobileNumber,
-                'error' => $error,
+                'response' => $curl_output,
                 'http_code' => $httpCode,
+                'message' => $message,
+                'key' => $key,
                 'verbose' => $verboseLog,
             ]);
 
+            // Check if response indicates hash mismatch error
+            if (stripos($curl_output, 'Hash is not matching') !== false || stripos($curl_output, 'Error 416') !== false) {
+                Log::error('OTP SMS Hash Mismatch', [
+                    'mobile_number' => $mobileNumber,
+                    'response' => $curl_output,
+                    'calculated_key' => $key,
+                    'message' => $message,
+                ]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'SMS gateway authentication failed. Hash mismatch error.',
+                    'error_code' => 'HASH_MISMATCH',
+                ], 500)->header('Content-Type', 'application/json');
+            }
+
+            // Check for other error responses
+            if (stripos($curl_output, 'Error') !== false && stripos($curl_output, '402') === false) {
+                Log::error('OTP SMS Gateway Error', [
+                    'mobile_number' => $mobileNumber,
+                    'response' => $curl_output,
+                ]);
+
+                // Extract error message for better user experience
+                $errorMessage = 'Failed to send OTP. Please try again later.';
+                if (stripos($curl_output, 'TRAI_EXEMPTION') !== false) {
+                    $errorMessage = 'SMS service temporarily unavailable. Please contact support.';
+                } elseif (stripos($curl_output, '429') !== false) {
+                    $errorMessage = 'SMS service quota exceeded. Please try again later.';
+                }
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $errorMessage,
+                    'error_code' => 'SMS_GATEWAY_ERROR',
+                    'details' => app()->hasDebugModeEnabled() ? $curl_output : null,
+                ], 500)->header('Content-Type', 'application/json');
+            }
+
             return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to send OTP: ' . $error,
-            ], 500);
-        }
-        
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        // Log the response with full details
-        Log::info('OTP SMS Response', [
-            'mobile_number' => $mobileNumber,
-            'response' => $curl_output,
-            'http_code' => $httpCode,
-            'message' => $message,
-            'key' => $key,
-            'verbose' => $verboseLog,
-        ]);
-
-        // Check if response indicates hash mismatch error
-        if (stripos($curl_output, 'Hash is not matching') !== false || stripos($curl_output, 'Error 416') !== false) {
-            Log::error('OTP SMS Hash Mismatch', [
+                'status' => 'success',
+                'message' => 'OTP sent successfully to ' . $mobileNumber,
                 'mobile_number' => $mobileNumber,
-                'response' => $curl_output,
-                'calculated_key' => $key,
-                'message' => $message,
+                // DO NOT return OTP in production - it's stored as hash only
+            ], 200)->header('Content-Type', 'application/json');
+            
+        } catch (\Exception $e) {
+            Log::error('OTP Send Exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'mobile_number' => $request->input('mobile_number'),
             ]);
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'SMS gateway authentication failed. Hash mismatch error.',
-                'error_code' => 'HASH_MISMATCH',
-            ], 500);
+                'message' => 'An error occurred while sending OTP. Please try again later.',
+                'error_code' => 'INTERNAL_ERROR',
+                'details' => app()->hasDebugModeEnabled() ? $e->getMessage() : null,
+            ], 500)->header('Content-Type', 'application/json');
         }
-
-        // Check for other error responses
-        if (stripos($curl_output, 'Error') !== false && stripos($curl_output, '402') === false) {
-            Log::error('OTP SMS Gateway Error', [
-                'mobile_number' => $mobileNumber,
-                'response' => $curl_output,
-            ]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'SMS gateway returned an error: ' . $curl_output,
-            ], 500);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'OTP sent successfully to ' . $mobileNumber,
-            'mobile_number' => $mobileNumber,
-            // DO NOT return OTP in production - it's stored as hash only
-        ], 200);
     }
 
     /**

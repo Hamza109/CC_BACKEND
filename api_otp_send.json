@@ -1,0 +1,162 @@
+{
+    "info": {
+        "_postman_id": "unique-id-for-otp-send-api",
+        "name": "Send OTP API",
+        "description": "Collection for testing the OTP send endpoint",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Send OTP",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"mobile_number\": \"9419114719\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "http://10.192.80.163:8000/api/otp/send",
+                    "protocol": "http",
+                    "host": ["10", "192", "80", "163"],
+                    "port": "8000",
+                    "path": ["api", "otp", "send"]
+                },
+                "description": "Sends a 6-digit OTP to the provided mobile number via SMS. The mobile number can be 10 digits (without country code) or 12 digits (with country code 91)."
+            },
+            "response": [
+                {
+                    "name": "Success 200 - OTP Sent",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"mobile_number\": \"9419114719\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "http://10.192.80.163:8000/api/otp/send",
+                            "protocol": "http",
+                            "host": ["10", "192", "80", "163"],
+                            "port": "8000",
+                            "path": ["api", "otp", "send"]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [
+                        {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ],
+                    "cookie": [],
+                    "body": "{\n  \"status\": \"success\",\n  \"message\": \"OTP sent successfully to 919419114719\",\n  \"mobile_number\": \"919419114719\"\n}"
+                },
+                {
+                    "name": "Error 422 - Validation Failed",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"mobile_number\": \"123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "http://10.192.80.163:8000/api/otp/send",
+                            "protocol": "http",
+                            "host": ["10", "192", "80", "163"],
+                            "port": "8000",
+                            "path": ["api", "otp", "send"]
+                        }
+                    },
+                    "status": "Unprocessable Entity",
+                    "code": 422,
+                    "_postman_previewlanguage": "json",
+                    "header": [
+                        {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ],
+                    "cookie": [],
+                    "body": "{\n  \"status\": \"error\",\n  \"message\": \"Validation failed\",\n  \"errors\": {\n    \"mobile_number\": [\n      \"The mobile number format is invalid.\"\n    ]\n  }\n}"
+                },
+                {
+                    "name": "Error 500 - SMS Gateway Error",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"mobile_number\": \"9419114719\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "http://10.192.80.163:8000/api/otp/send",
+                            "protocol": "http",
+                            "host": ["10", "192", "80", "163"],
+                            "port": "8000",
+                            "path": ["api", "otp", "send"]
+                        }
+                    },
+                    "status": "Internal Server Error",
+                    "code": 500,
+                    "_postman_previewlanguage": "json",
+                    "header": [
+                        {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ],
+                    "cookie": [],
+                    "body": "{\n  \"status\": \"error\",\n  \"message\": \"SMS service temporarily unavailable. Please contact support.\",\n  \"error_code\": \"SMS_GATEWAY_ERROR\",\n  \"details\": null\n}"
+                }
+            ]
+        }
+    ]
+}
